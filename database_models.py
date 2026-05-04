@@ -5,7 +5,7 @@ base = declarative_base()
 
 
 class Product(base):
-    __tablename__ = "All Products Table"
+    __tablename__ = "All_Products_Table"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
