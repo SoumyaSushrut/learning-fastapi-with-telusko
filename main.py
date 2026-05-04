@@ -1,8 +1,12 @@
 from fastapi import FastAPI
 from models import Product
-from database import session
+from database import session, engine
+import database_models
+
 
 app = FastAPI()
+
+database_models.base.metadata.create_all(bind=engine)
 
 
 @app.get("/")
@@ -16,10 +20,25 @@ products = [
 ]
 
 
+def init_db():
+    db = session()
+    count = db.query(database_models.Product).count
+
+    if count == 0:
+        for product in products:
+            db.add(database_models.Product(**product.model_dump()))
+
+    db.commit()
+    db.close()
+
+
+init_db()
+
+
 @app.get("/products")
 def get_all_products():
-    db=session()
-    db.query()
+    # db=session()
+    # db.query()
     return products
 
 
@@ -47,11 +66,12 @@ def update_product(id: int, product: Product):
 
     return "Product was not found"
 
+
 @app.delete("/product")
 def delete_product(id: int):
     for i in range(len(products)):
-        if products[i].id==id:
+        if products[i].id == id:
             del products[i]
             return "product deleted succesfully"
-        
+
     return "Product was not found"
