@@ -3,9 +3,14 @@ from models import Product
 from database import session, engine
 import database_models
 from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware, allow_origins=["http://localhost:3000"], allow_methods=["*"]
+)
 
 database_models.base.metadata.create_all(bind=engine)
 
@@ -53,7 +58,7 @@ def get_all_products(db: Session = Depends(get_db)):
     return db_products
 
 
-@app.get("/product/{id}")
+@app.get("/products/{id}")
 def get_product_by_id(id: int, db: Session = Depends(get_db)):
     db_product = (
         db.query(database_models.Product)
@@ -72,7 +77,7 @@ def add_product(product: Product, db: Session = Depends(get_db)):
     return product
 
 
-@app.put("/products")
+@app.put("/products/{id}")
 def update_product(id: int, product: Product, db: Session = Depends(get_db)):
     db_product = (
         db.query(database_models.Product)
@@ -91,7 +96,7 @@ def update_product(id: int, product: Product, db: Session = Depends(get_db)):
         return "Product was not found"
 
 
-@app.delete("/products")
+@app.delete("/products/{id}")
 def delete_product(id: int, db: Session = Depends(get_db)):
     db_product = (
         db.query(database_models.Product)
